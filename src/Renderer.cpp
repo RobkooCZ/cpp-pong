@@ -12,15 +12,15 @@ void Renderer::render(HDC hdc, const GameState& gameState) {
     FillRect(hdc, &rect, blackBrush);
 
     // Left paddle
-    rect = {50, gameState.leftPaddleY, 60, gameState.leftPaddleY + 100};
+    rect = {PADDLE_DISTANCE_FROM_EDGE, gameState.leftPaddleY, PADDLE_DISTANCE_FROM_EDGE + PADDLE_WIDTH, gameState.leftPaddleY + PADDLE_HEIGHT};
     FillRect(hdc, &rect, whiteBrush);
 
     // Right paddle
-    rect = {750, gameState.rightPaddleY, 760, gameState.rightPaddleY + 100};
+    rect = {XRES - PADDLE_DISTANCE_FROM_EDGE - PADDLE_WIDTH, gameState.rightPaddleY, XRES - PADDLE_DISTANCE_FROM_EDGE, gameState.rightPaddleY + 100};
     FillRect(hdc, &rect, whiteBrush);
 
     // Ball
-    Ellipse(hdc, gameState.ballX - 10, gameState.ballY - 10, gameState.ballX + 10, gameState.ballY + 10);
+    Ellipse(hdc, gameState.ballX - BALL_SIZE, gameState.ballY - BALL_SIZE, gameState.ballX + BALL_SIZE, gameState.ballY + BALL_SIZE);
 
     // Score
     std::string scoreText = std::to_string(gameState.leftScore) + " : " + std::to_string(gameState.rightScore);

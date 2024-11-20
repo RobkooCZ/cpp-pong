@@ -57,15 +57,34 @@ LRESULT Window::InstanceWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
         case WM_TIMER:
             if (wParam == TIMER_ID) {
+                // Update ball position
                 gameState.ballX += gameState.ballSpeedX;
                 gameState.ballY += gameState.ballSpeedY;
 
-                // Ball collision logic
-                if (gameState.ballY <= 0 || gameState.ballY >= YRES) gameState.ballSpeedY = -gameState.ballSpeedY;
-                if ((gameState.ballX <= 50 && gameState.ballY >= gameState.leftPaddleY &&
-                     gameState.ballY <= gameState.leftPaddleY + 100) ||
-                    (gameState.ballX >= 750 && gameState.ballY >= gameState.rightPaddleY &&
-                     gameState.ballY <= gameState.rightPaddleY + 100)) gameState.ballSpeedX = -gameState.ballSpeedX;
+                // Update hitboxes
+                gameState.ballHitbox = {
+                    gameState.ballX - BALL_SIZE, gameState.ballY - BALL_SIZE,
+                    gameState.ballX + BALL_SIZE, gameState.ballY + BALL_SIZE
+                };
+                gameState.leftPaddleHitbox = {
+                    PADDLE_DISTANCE_FROM_EDGE, gameState.leftPaddleY,
+                    PADDLE_DISTANCE_FROM_EDGE + PADDLE_WIDTH, gameState.leftPaddleY + PADDLE_HEIGHT
+                };
+                gameState.rightPaddleHitbox = {
+                    XRES - PADDLE_WIDTH - PADDLE_DISTANCE_FROM_EDGE, gameState.rightPaddleY,
+                    XRES - PADDLE_DISTANCE_FROM_EDGE, gameState.rightPaddleY + PADDLE_HEIGHT
+                };
+
+                // Ball collision with bottom or top
+                if (gameState.ballY <= 0 || gameState.ballY >= YRES - (4 * BALL_SIZE)) {
+                    gameState.ballSpeedY = -gameState.ballSpeedY;
+                }
+                
+                // Ball collision with paddles
+                if (areHitboxesColliding(gameState.ballHitbox, gameState.leftPaddleHitbox) ||
+                    areHitboxesColliding(gameState.ballHitbox, gameState.rightPaddleHitbox)) {
+                    gameState.ballSpeedX = -gameState.ballSpeedX;
+                }
 
                 // Scoring logic
                 if (gameState.ballX <= 0) { gameState.rightScore++; gameState.resetBall(); }
@@ -77,9 +96,9 @@ LRESULT Window::InstanceWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
         case WM_KEYDOWN:
             if (wParam == 'W' && gameState.leftPaddleY > 0) gameState.leftPaddleY -= 25;
-            if (wParam == 'S' && gameState.leftPaddleY < YRES - 100) gameState.leftPaddleY += 25;
+            if (wParam == 'S' && gameState.leftPaddleY < YRES - PADDLE_HEIGHT) gameState.leftPaddleY += 25;
             if (wParam == VK_UP && gameState.rightPaddleY > 0) gameState.rightPaddleY -= 25;
-            if (wParam == VK_DOWN && gameState.rightPaddleY < YRES - 100) gameState.rightPaddleY += 25;
+            if (wParam == VK_DOWN && gameState.rightPaddleY < YRES - PADDLE_HEIGHT) gameState.rightPaddleY += 25;
             InvalidateRect(hwnd, nullptr, TRUE);
             return 0;
 

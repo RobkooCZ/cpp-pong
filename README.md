@@ -1,5 +1,9 @@
 # PONG - My first 2D game in C++.
 
+## Version 1.1
+- Much better hitboxes
+- Game is now 1280x720
+
 ## Version 1.0
 - Very simple pong game
 - Not the best UI or borders and such
